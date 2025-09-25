@@ -643,7 +643,7 @@ class Parser {
                 case LTIdentifier(identifier): fieldName = identifier;
                 case LTConst(const):
                     switch (const) {
-                        case LCString(string): fieldName = string;
+                        case LCString(string, _): fieldName = string;
                         default: unexpected();
                     }
                 default:

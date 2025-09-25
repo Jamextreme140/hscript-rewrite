@@ -237,7 +237,7 @@ enum abstract LKeyword(String) from String {
 enum LConst {
 	LCInt(int:Int);
 	LCFloat(float:Float);
-	LCString(string:String);
+	LCString(string:String, interpolate:Bool);
 }
 
 /**
@@ -427,7 +427,9 @@ class Lexer {
                         default: character--;
                     }
                     return LTQuestion;
-                case "'".code, '"'.code: return LTConst(LCString(readString(charCode)));
+                case "'".code, '"'.code: 
+                    final interpolate:Bool = charCode == 39;
+                    return LTConst(LCString(readString(charCode, interpolate), interpolate));
                 case '='.code:
                     charCode = readCharacter();
                     if (charCode == '='.code) return LTOp(EQ);
@@ -516,7 +518,7 @@ class Lexer {
         });
 	}
 
-    private inline function readString(untilCharCode:Int) {
+    private inline function readString(untilCharCode:Int, interpolate:Bool = false) {
 		var c:Int = 0;
 		var b:StringBuf = new StringBuf();
 		var esc:Bool = false;
