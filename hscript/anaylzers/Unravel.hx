@@ -1,5 +1,6 @@
 package hscript.anaylzers;
 
+import hscript.Ast.ClassDecl;
 import hscript.Ast.SwitchCase;
 import hscript.Ast.ObjectField;
 import hscript.Ast.Argument;
@@ -10,12 +11,13 @@ using hscript.utils.ExprUtils;
 @:nullSafety(Strict) class Unravel {
     public static final SAFE_FOR_UNLOOP:Int = 16;
 
-    public static function eval(expr:Expr):Expr {
+    public static function eval(expr:Expr, cl:Bool = false):Expr {
         return new Expr(switch (expr.expr) {
             case EVar(name, init, isPublic, isStatic): EVar(name, if (init != null) eval(init) else null, isPublic, isStatic);
             case EParent(expr): EParent(eval(expr));
             case EBlock(exprs): 
-                if (exprs.length == 1 && exprs[0] != null) return exprs[0];
+                // forces to use EBlock for class declarations
+                if (exprs.length == 1 && !cl && exprs[0] != null) return exprs[0];
 
                 // Stop code after returns from being in the AST
                 var optimizedExprs:Array<Expr> = [];
@@ -99,7 +101,8 @@ using hscript.utils.ExprUtils;
             );
             case EDoWhile(cond, body): EDoWhile(eval(cond), eval(body));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) eval(arg)], eval(expr));
-            case EInfo(info, expr): EInfo(info, eval(expr));
+            case EInfo(info, expr): EInfo(info, eval(expr, cl));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, eval(decl.body, true)));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
             case EUnop(op, isPrefix, expr): EUnop(op, isPrefix, eval(expr));
             case EIf(cond, thenExpr, elseExpr): EIf(eval(cond), eval(thenExpr), elseExpr != null ? eval(elseExpr) : null);

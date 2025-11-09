@@ -186,10 +186,12 @@ enum abstract LKeyword(String) from String {
     var CASE:LKeyword = "case";
     var CAST:LKeyword = "cast";
     var CATCH:LKeyword = "catch";
+    var HCLASS:LKeyword = "class";
     var CONTINUE:LKeyword = "continue";
     var DEFAULT:LKeyword = "default";
     var DO:LKeyword = "do";
     var ELSE:LKeyword = "else";
+    var HEXTENDS:LKeyword = "extends";
     var FALSE:LKeyword = "false";
     var FINAL:LKeyword = "final";
     var FOR:LKeyword = "for";
@@ -198,6 +200,7 @@ enum abstract LKeyword(String) from String {
     var HIMPORT:LKeyword = "import"; // HIMPORT to prevent conflicts with lua libs
     var IN:LKeyword = "in";
     var HINLINE:LKeyword = "inline"; // HINLINE to prevent conflicts with lua libs
+    var HIMPLEMENTS:LKeyword = "implements";
     var NEW:LKeyword = "new";
     var NULL:LKeyword = "null";
     var OVERRIDE:LKeyword = "override";
@@ -214,8 +217,8 @@ enum abstract LKeyword(String) from String {
     var WHILE:LKeyword = "while";
 
     public static final ALL_KEYWORDS:Array<LKeyword> = [
-        AS, BREAK, CASE, CAST, CATCH, CONTINUE, DEFAULT, DO, ELSE,
-        FALSE, FINAL, FOR, FUNCTION, IF, HIMPORT, IN, HINLINE,
+        AS, BREAK, CASE, CAST, CATCH, HCLASS, CONTINUE, DEFAULT, DO, ELSE, HEXTENDS,
+        FALSE, FINAL, FOR, FUNCTION, IF, HIMPORT, IN, HINLINE, HIMPLEMENTS,
         NEW, NULL, OVERRIDE, PRIVATE, PUBLIC, RETURN, STATIC, 
         SWITCH, THIS, THROW, TRUE, TRY, VAR, WHILE
     ];

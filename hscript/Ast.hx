@@ -60,6 +60,7 @@ enum ExprDef {
     EDoWhile(cond:Expr, body:Expr);
     EMeta(name:String, args:Array<Expr>, expr:Expr);
     EImport(path:String, mode:EImportMode);
+    EClass(name:VariableType, decl:ClassDecl);
     
     EInfo(info:VariableInfo, expr:Expr);
     EEmpty;
@@ -274,6 +275,20 @@ enum EImportMode {
     Normal; // import haxe.Json;
     As(name:String); // import haxe.Json as JsonUtil;
     All; // import haxe.*;
+}
+
+class ClassDecl {
+    public var name:String;
+    public var extend:Null<String>;
+    public var implement:Array<String>;
+    public var body:Expr; // Will be always EInfo along with a EBlock
+
+    public function new(name:String, ?extend:String, implement:Array<String>, body:Expr) {
+        this.name = name;
+        this.extend = extend;
+        this.implement = implement;
+        this.body = body;
+    }
 }
 
 typedef VariableType = Int;

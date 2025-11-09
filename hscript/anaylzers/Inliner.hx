@@ -1,5 +1,6 @@
 package hscript.anaylzers;
 
+import hscript.Ast.ClassDecl;
 import hscript.Ast.Argument;
 import hscript.Ast.ObjectField;
 import hscript.Ast.SwitchCase;
@@ -38,6 +39,7 @@ using hscript.utils.ExprUtils;
             case EDoWhile(cond, body): EDoWhile(eval(cond, vars), eval(body, vars));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) eval(arg, vars)], eval(expr, vars));
             case EInfo(info, expr): EInfo(info, eval(expr, info));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, eval(decl.body, vars)));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
             case EUnop(op, isPrefix, expr): EUnop(op, isPrefix, eval(expr, vars));
             case EIf(cond, thenExpr, elseExpr): EIf(eval(cond, vars), eval(thenExpr, vars), elseExpr != null ? eval(elseExpr, vars) : null);

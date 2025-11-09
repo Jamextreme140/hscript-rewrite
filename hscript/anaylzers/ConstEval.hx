@@ -1,5 +1,6 @@
 package hscript.anaylzers;
 
+import hscript.Ast.ClassDecl;
 import hscript.Ast.VariableInfo;
 import hscript.Ast.SwitchCase;
 import hscript.Ast.ObjectField;
@@ -40,6 +41,7 @@ using hscript.Ast.ExprBinop;
             case EDoWhile(cond, body): EDoWhile(guarantee(cond != null ? eval(cond, vars) : null), guarantee(body != null ? eval(body, vars) : null));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) guarantee(arg != null ? eval(arg, vars) : null)], guarantee(expr != null ? eval(expr, vars) : null));
             case EInfo(info, expr): EInfo(info, guarantee(expr != null ? eval(expr, info) : null));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, eval(decl.body, vars)));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
             case ENew(className, args): 
                 var mapIndexes:Array<Int> = vars == null ? [] : [

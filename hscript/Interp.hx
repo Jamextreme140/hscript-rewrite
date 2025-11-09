@@ -446,6 +446,8 @@ class Interp extends ScriptRuntime {
                 var importValue:Dynamic = interpImport(path, mode);
                 if (importValue == null) error(EInvalidClass(path), expr.line);
                 return importValue;
+            case EClass(name, decl):
+                null; // TODO
             case EInfo(info, _): error(ECustom("Invalid EInfo()"), expr.line);
             case EEmpty: null;
         }

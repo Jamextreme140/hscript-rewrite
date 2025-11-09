@@ -319,6 +319,22 @@ class ExprPrinter {
 						add(".*");
 					default:
 				}
+			case EClass(_, decl):
+				add('class ${decl.name} ');
+				if(decl.extend != null)
+					add('extends ${decl.extend} ');
+				if(decl.implement.length > 0)
+					for(i in decl.implement)
+						add('implements $i ');
+				switch(decl.body.expr) {
+					case EInfo(info, expr):
+						var oldVariableName = variableNames.copy();
+						loadTables(info);
+						printExpr(expr);
+						this.variableNames = oldVariableName;
+					default:
+						add("{}");
+				}
 			case EInfo(_, _):
 				add("<EInfo>");
 			case EEmpty:

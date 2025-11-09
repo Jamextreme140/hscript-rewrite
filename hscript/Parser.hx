@@ -1,5 +1,6 @@
 package hscript;
 
+import hscript.Ast.ClassDecl;
 import hscript.utils.ExprUtils;
 import hscript.Interp.StaticInterp;
 import haxe.ds.StringMap;
@@ -564,6 +565,8 @@ class Parser {
                 }
 
                 create(EImport(identifiers.join("."), mode));
+            case HCLASS: create(parseClass());
+            case HEXTENDS | HIMPLEMENTS: unexpected(); // if used outside of the class declaration
             case THROW: create(EThrow(parseExpr()));
             default: 
                 // parse keywords like null and static as variables because they are used like that sometimes -lunar
@@ -595,7 +598,7 @@ class Parser {
         }
     }
 
-    private function parseClassName():String { // haxe.Unserializer
+    private function parseClassName(c:Bool = false):String { // haxe.Unserializer
         var identifiers:Array<String> = [];
         identifiers.push(parseIdent());
 
@@ -603,6 +606,7 @@ class Parser {
             switch (readToken()) {
                 case LTDot: identifiers.push(parseIdent());
                 case LTOp(LT): parseClassArgs(); // Class args
+                case LTOpenCB if(c): reverseToken(); break;
                 case LTOpenP: break;
                 default: unexpected(); break;
             }
@@ -949,6 +953,78 @@ class Parser {
         return parseNextExpr(create(EObject(fields)));
     }
 
+    private function parseClass():ExprDef {
+        var className:String = parseIdent();
+        if(maybe(LTOp(LT)))  // class MyClass<T>
+            parseClassArgs();
+
+        var extend:Null<String> = null;
+        if(maybe(LTKeyWord(HEXTENDS))) 
+            extend = parseClassName(true);
+
+        var implement:Array<String> = [];
+        if(maybe(LTKeyWord(HIMPLEMENTS))) {
+            // handled manually for multiple implements
+            while(true) {
+                switch(readToken()) {
+                    case LTKeyWord(HIMPLEMENTS): continue;
+                    case LTIdentifier(id): 
+                        var ident:Array<String> = [];
+                        ident.push(id);
+
+                        while(true) {
+                            switch(readToken()) {
+                                case LTDot: ident.push(parseIdent());
+                                case LTOp(LT): parseClassArgs();
+                                default: 
+                                    reverseToken();
+                                    break;
+                            }
+                        }
+                        
+                        implement.push(ident.join("."));
+                    default:
+                        reverseToken();
+                        break;
+                }
+            }
+        }
+
+        ensure(LTOpenCB);
+
+        var oldFileName:String = this.fileName;
+        var oldVariablesList:Array<String> = this.variablesList.copy();
+        var oldUniqueID:Int = uniqueID;
+        
+        this.fileName = oldFileName.length == 0 ? className : '${haxe.io.Path.withoutExtension(oldFileName)}.$className'; // myScript.MyClass
+        this.variablesList.resize(0);
+        this.uniqueID = 0;
+
+        var fieldsExpr:Array<Expr> = [];
+        parseClassFields(fieldsExpr);
+
+        var clsDecl:ClassDecl = new ClassDecl(className, extend, implement, create(EInfo(variablesList, create(EBlock(fieldsExpr)))));
+        
+        this.fileName = oldFileName;
+        this.variablesList = oldVariablesList;
+        this.uniqueID = oldUniqueID;
+        
+        return EClass(variableID(className), clsDecl);
+    }
+
+    private function parseClassFields(fields:Array<Expr>) {
+        while(true) {
+            switch(readToken()) {
+                case LTKeyWord(PUBLIC) | LTKeyWord(STATIC) | LTKeyWord(HINLINE) | LTKeyWord(OVERRIDE) | LTKeyWord(FUNCTION) | LTKeyWord(VAR) | LTKeyWord(FINAL):
+                    reverseToken();
+                    fields.push(parseExpr());
+                case LTSemiColon: continue;
+                case LTCloseCB: break;
+                default: unexpected();
+            }
+        }
+    }
+
     private function functionExpr(expr:Expr):Expr {
         return switch (expr.expr) {
             case EObject([]): return new Expr(EBlock([]), expr.line);
@@ -1000,6 +1076,7 @@ class Parser {
             case EReturn(expr): expr != null && isBlock(expr);
             case ETry(_, _, expr): isBlock(expr);
             case EMeta(_, _, expr): isBlock(expr);
+            case EClass(_, _): true;
             default: false;
 		}
 	}

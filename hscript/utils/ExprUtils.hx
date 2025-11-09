@@ -1,5 +1,6 @@
 package hscript.utils;
 
+import hscript.Ast.ClassDecl;
 import hscript.Ast.SwitchCase;
 import hscript.Ast.ObjectField;
 import hscript.Ast.Argument;
@@ -39,6 +40,7 @@ import hscript.Ast.Expr;
             case EDoWhile(cond, body): iterate(cond, iter); iterate(body, iter);
             case EMeta(name, args, expr): for (arg in args) {iterate(arg, iter);} iterate(expr, iter);
             case EInfo(info, expr): iterate(expr, iter);
+            case EClass(name, decl): iterate(decl.body, iter);
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: // Cause compilier error if these arent updated along with Ast.hx -lunar
         }
     }
@@ -76,6 +78,7 @@ import hscript.Ast.Expr;
             case EDoWhile(cond, body): transverse(cond, iter); transverse(body, iter);
             case EMeta(name, args, expr): for (arg in args) {transverse(arg, iter);} transverse(expr, iter);
             case EInfo(info, expr): transverse(expr, iter);
+            case EClass(name, decl): transverse(decl.body, iter);
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty:
         }
     }
@@ -113,6 +116,7 @@ import hscript.Ast.Expr;
             case EDoWhile(cond, body): EDoWhile(map(cond, iter), map(body, iter));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) map(arg, iter)], map(expr, iter));
             case EInfo(info, expr): EInfo(info, map(expr, iter));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, map(decl.body, iter)));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
         }, expr.line) else null;
 
