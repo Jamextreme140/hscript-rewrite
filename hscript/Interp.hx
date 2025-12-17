@@ -212,6 +212,20 @@ class ScriptRuntime {
         return ref.r;
     }
 
+    private function declarePublic(name:VariableType, value:Dynamic):Bool {
+        if(publicVariables == null) return false;
+        var varName:String = variableNames[name];
+        publicVariables.set(varName, value);
+        return true;
+    }
+
+    private function declareStatic(name:VariableType, value:Dynamic):Bool {
+        var varName:String = variableNames[name];
+        if(StaticInterp.staticVariables.exists(varName)) return false;
+        StaticInterp.staticVariables.set(varName, value);
+        return true;
+    }
+
     private inline function assign(name:VariableType, value:Dynamic):Dynamic {
         variablesDeclared[name] = true;
         variablesValues[name].r = value;
@@ -322,15 +336,10 @@ class Interp extends ScriptRuntime {
             case EIdent(name): if (variablesDeclared[name]) variablesValues[name].r; else resolveGlobal(name);
             case EVar(name, init, isPublic, isStatic):
                 if (depth == 0) {
-                    var varName:String = variableNames[name];
-                    if (isStatic && !StaticInterp.staticVariables.exists(varName)) {
-                        StaticInterp.staticVariables.set(varName, interpExpr(init));
+                    if (isStatic && declareStatic(name, interpExpr(init))) 
                         return null;
-                    }
-                    if (isPublic && publicVariables != null) {
-                        publicVariables.set(varName, interpExpr(init));
+                    if (isPublic && declarePublic(name, interpExpr(init))) 
                         return null;
-                    }
                 }
                 declare(name, init == null ? null : interpExpr(init));
                 return null;
@@ -602,13 +611,12 @@ class Interp extends ScriptRuntime {
         functionRef.r = reflectiveFunction;
         if (name != -1) {
             if (depth == 0) {
-                var varName:String = variableNames[name];
-                if (isStatic && !StaticInterp.staticVariables.exists(varName)) {
-                    StaticInterp.staticVariables.set(varName, reflectiveFunction);
+                if (isStatic) {
+                    declareStatic(name, reflectiveFunction);
                     return reflectiveFunction;
                 }
-                if (isPublic && publicVariables != null) {
-                    publicVariables.set(variableNames[name], reflectiveFunction);
+                if (isPublic) {
+                    declarePublic(name, reflectiveFunction);
                     return reflectiveFunction;
                 }
             }
