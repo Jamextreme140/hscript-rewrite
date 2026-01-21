@@ -16,31 +16,38 @@ class Main {
     public static function main() {
         var parser = new Parser();
         var expr = parser.parseString("
-			var a = []; 
-			for (i in 0...1000) a.push(i * 2 + 1 / 6); 
-			if(true == true) a.push(1);
-			a[0];
+			class MyClass {
+				public static function getSum(a:Int, b:Int) {
+					return a + b + 2;
+				}
+
+				public var a:Int;
+				public var b:Int;
+				public function new(n1:Int, n2:Int) {
+					trace('hello! :3');
+					a = n1;
+					b = n2;
+				}
+
+				public function sum() {
+					var r = a + b;
+					if(r == 67) return -1;
+					return r;
+				}
+			}
+
+			trace(MyClass.getSum(9, 10));
+			var myInstance = new MyClass(50, 17);
+			var v = myInstance.sum();
+			trace(v == -1 ? 'nope :>' : v);
 		");
 
-		// expr = Analyzer.optimize(expr);
-
-        var compiler:ByteCompiler = new ByteCompiler();
-        var bytes:ByteChunk = compiler.compile(expr);
-
-        var vm = new ByteVM("Main.hx");
-
-        var time:Float = Timer.stamp();
-		for (i in 0...2000)
-			vm.execute(bytes);
-		trace(Timer.stamp() - time);
-
-
+		expr = Analyzer.optimize(expr);
+		trace("------ HSCRIPT AST ------");
+		trace(hscript.utils.ExprUtils.print(expr));
+		trace("--------- OUTPUT --------");
 		var interp:Interp = new Interp("Main.hx");
 		interp.errorHandler = (error:Error) -> {Sys.println(error);}
-
-        var time:Float = Timer.stamp();
-		for (i in 0...2000)
-			interp.execute(expr);
-		trace(Timer.stamp() - time);
+		interp.execute(expr);
     }
 }

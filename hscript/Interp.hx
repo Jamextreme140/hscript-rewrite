@@ -1,5 +1,7 @@
 package hscript;
 
+import hscript.misc.classes.ClassHandler;
+import hscript.Ast.ClassDecl;
 import haxe.ds.ObjectMap;
 import haxe.ds.Map;
 import haxe.ds.StringMap;
@@ -212,14 +214,14 @@ class ScriptRuntime {
         return ref.r;
     }
 
-    private function declarePublic(name:VariableType, value:Dynamic):Bool {
+    private inline function declarePublic(name:VariableType, value:Dynamic):Bool {
         if(publicVariables == null) return false;
         var varName:String = variableNames[name];
         publicVariables.set(varName, value);
         return true;
     }
 
-    private function declareStatic(name:VariableType, value:Dynamic):Bool {
+    private inline function declareStatic(name:VariableType, value:Dynamic):Bool {
         var varName:String = variableNames[name];
         if(StaticInterp.staticVariables.exists(varName)) return false;
         StaticInterp.staticVariables.set(varName, value);
@@ -455,8 +457,9 @@ class Interp extends ScriptRuntime {
                 var importValue:Dynamic = interpImport(path, mode);
                 if (importValue == null) error(EInvalidClass(path), expr.line);
                 return importValue;
-            case EClass(name, decl):
-                null; // TODO
+            case EClass(name, decl): 
+                interpClass(name, decl);
+                return null;
             case EInfo(info, _): error(ECustom("Invalid EInfo()"), expr.line);
             case EEmpty: null;
         }
@@ -496,6 +499,7 @@ class Interp extends ScriptRuntime {
         return null;
     }
 
+    // TODO: resolve custom class
     private function interpImport(path:String, mode:EImportMode):Dynamic {
         if (mode == All) return null; // not implemented
 
@@ -759,7 +763,13 @@ class Interp extends ScriptRuntime {
         if (classType == null) classType = resolveGlobal(className);
 
         var params:Array<Dynamic> = [for (arg in args) interpExpr(arg)];
+        if(classType is ClassHandler) 
+            return ClassHandler.createInstance(classType, params);
         return Type.createInstance(classType, params);
+    }
+
+    private inline function interpClass(name:VariableType, decl:ClassDecl) {
+        declare(name, new ClassHandler(decl, this));
     }
 
     private function assignExpr(left:Expr, right:Expr):Dynamic {
