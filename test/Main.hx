@@ -21,12 +21,16 @@ class Main {
 					return a + b + 2;
 				}
 
-				public var a:Int;
-				public var b:Int;
-				public function new(n1:Int, n2:Int) {
+				public var a:Int = 50;
+				public var b:Int = 17;
+				public function new(a:Int, b:Int) {
 					trace('hello! :3');
-					a = n1;
-					b = n2;
+					trace(this.a);
+					trace(a);
+					trace(this.b);
+					trace(b);
+					this.a = a;
+					this.b = b;
 				}
 
 				public function sum() {
@@ -37,7 +41,7 @@ class Main {
 			}
 
 			trace(MyClass.getSum(9, 10));
-			var myInstance = new MyClass(50, 17);
+			var myInstance = new MyClass(6, 7);
 			var v = myInstance.sum();
 			trace(v == -1 ? 'nope :>' : v);
 		");
