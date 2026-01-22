@@ -16,9 +16,9 @@ class ClassHandler implements IHScriptCustomBehaviour {
     }
 
     public final name:String;
-
+    public final classInterp:Interp;
+    
     private var module:ScriptRuntime;
-    private var classInterp:Interp;
     private final clsDecl:ClassDecl;
 	private final constructor:Dynamic;
 
@@ -41,7 +41,7 @@ class ClassHandler implements IHScriptCustomBehaviour {
         return new Instance(args, this);
     }
 
-    private inline function hasField(name:String) {
+    public function hasField(name:String) {
         return classInterp.variables.exists(name);
     }
 

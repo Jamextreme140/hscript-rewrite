@@ -17,30 +17,33 @@ class Main {
         var parser = new Parser();
         var expr = parser.parseString("
 			class MyClass {
+				public static var N:Int = 100;
 				public static function getSum(a:Int, b:Int) {
-					return a + b + 2;
+					trace('static getSum');
+					return a + b + N;
 				}
 
 				public var a:Int = 50;
 				public var b:Int = 17;
 				public function new(a:Int, b:Int) {
 					trace('hello! :3');
-					trace(this.a);
-					trace(a);
-					trace(this.b);
-					trace(b);
+					trace('---- locals check ----');
+					trace('this.a: ${this.a}');
+					trace('a: $a');
+					trace('this.b: ${this.b}');
+					trace('b: $b');
 					this.a = a;
 					this.b = b;
 				}
 
 				public function sum() {
-					var r = a + b;
+					var r = MyClass.getSum(a, b) * N;
 					if(r == 67) return -1;
 					return r;
 				}
 			}
 
-			trace(MyClass.getSum(9, 10));
+			trace(MyClass.getSum(9, 10) + 2);
 			var myInstance = new MyClass(6, 7);
 			var v = myInstance.sum();
 			trace(v == -1 ? 'nope :>' : v);

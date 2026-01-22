@@ -22,6 +22,11 @@ class InstanceInterp extends Interp {
         super.loadTables(info);
     }
 
+    public override function loadBaseVariables() {
+        variables.set(classHandler.name, classHandler); 
+        super.loadBaseVariables();
+    }
+
     private override function interpExpr(expr:Ast.Expr):Dynamic {
         if (expr == null) return null;
 
@@ -118,6 +123,8 @@ class InstanceInterp extends Interp {
     private override function resolve(varName:String):Dynamic {
         if(varName == 'this')
             return scriptParent;
+        if(classHandler.hasField(varName))
+            return classHandler.classInterp.variables.get(varName);
         return super.resolve(varName);
     }
 }

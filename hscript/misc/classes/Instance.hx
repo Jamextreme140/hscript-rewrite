@@ -12,7 +12,7 @@ import hscript.Ast.IHScriptCustomBehaviour;
 class Instance implements IHScriptCustomBehaviour {
 
     private var instanceInterp:InstanceInterp;
-    private var classHandler:ClassHandler; // TODO: static fields lookup
+    private var classHandler:ClassHandler;
     private var module:ScriptRuntime;
 
     public function new(args:Array<Dynamic>, classHandler:ClassHandler) {
@@ -25,7 +25,7 @@ class Instance implements IHScriptCustomBehaviour {
         }
     }
 
-    private function build() {
+    private inline function build() {
         instanceInterp = new InstanceInterp(classHandler.name, classHandler);
         instanceInterp.errorHandler = module.errorHandler;
         instanceInterp.publicVariables = module.publicVariables;
@@ -34,10 +34,14 @@ class Instance implements IHScriptCustomBehaviour {
     }
 
     public function hget(field:String):Dynamic {
+        if(classHandler.hasField(field))
+            throw 'The field $field should be accessed in a static way';
         return instanceInterp.resolveField(field);
     }
 
     public function hset(field:String, value:Dynamic):Dynamic {
+        if(classHandler.hasField(field))
+            throw 'The field $field should be accessed in a static way';
         return instanceInterp.assignField(field, value);
     }
 }
