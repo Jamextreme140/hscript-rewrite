@@ -115,16 +115,12 @@ class InstanceInterp extends Interp {
         return assign(name, value);
     }
 
-    // TODO: Lookup for static fields 
     private override function resolveGlobal(ident:Ast.VariableType):Dynamic {
-        return super.resolveGlobal(ident);
-    }
-
-    private override function resolve(varName:String):Dynamic {
+        var varName:String = variableNames[ident];
         if(varName == 'this')
             return scriptParent;
         if(classHandler.hasField(varName))
             return classHandler.classInterp.variables.get(varName);
-        return super.resolve(varName);
+        return super.resolveGlobal(ident);
     }
 }

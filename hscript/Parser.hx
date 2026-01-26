@@ -356,6 +356,8 @@ class Parser {
     @:haxe.warning("-WUnusedPattern") // get rid of (WUnusedPattern) This case is unused on INLINE case
     private function parseKeyword(keyword:LKeyword) {
         return switch (keyword) {
+            case FINAL if(maybe(LTKeyWord(HCLASS))):
+                create(parseClass(true));
             case VAR | FINAL: 
                 var variableName:String = parseIdent();
                 if (maybe(LTColon)) parseType(); // var:Type
@@ -953,7 +955,7 @@ class Parser {
         return parseNextExpr(create(EObject(fields)));
     }
 
-    private function parseClass():ExprDef {
+    private function parseClass(finalModifier:Bool = false):ExprDef {
         var className:String = parseIdent();
         if(maybe(LTOp(LT)))  // class MyClass<T>
             parseClassArgs();
@@ -1003,7 +1005,7 @@ class Parser {
         var fieldsExpr:Array<Expr> = [];
         parseClassFields(fieldsExpr);
 
-        var clsDecl:ClassDecl = new ClassDecl(className, extend, implement, create(EInfo(variablesList, create(EBlock(fieldsExpr)))));
+        var clsDecl:ClassDecl = new ClassDecl(className, extend, implement, create(EInfo(variablesList, create(EBlock(fieldsExpr)))), finalModifier);
         
         this.fileName = oldFileName;
         this.variablesList = oldVariablesList;

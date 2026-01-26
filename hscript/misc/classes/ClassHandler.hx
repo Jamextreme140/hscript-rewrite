@@ -11,24 +11,36 @@ import hscript.Ast.IHScriptCustomBehaviour;
  @:allow(hscript.misc.classes.Instance)
 class ClassHandler implements IHScriptCustomBehaviour {
 
-    private static inline var CLASS_POSFIX:String = "_HSX"; // BIG TODO
+    private static inline var CLASS_POSFIX:String = "_HSX"; // BIG TODO: generate special classes with macro
 
+    /**
+     * Creates an instance of custom class `cl`, using `args` as arguments to the 
+     * class constructor.
+     */
     public static function createInstance(cl:ClassHandler, args:Array<Dynamic>) {
         return cl.create(args);
     }
 
+    /**
+     * Returns the custom class of `o`, if `o` is a custom class instance
+     */
+    public static function getClass(o:Instance):ClassHandler {
+        return @:privateAccess o.classHandler;
+    }
+
     public final name:String;
-    public final isFinal:Bool = false; // TODO: final class
+    public final isFinal:Bool;
     public final classInterp:Interp;
     
     private var module:ScriptRuntime;
     private final clsDecl:ClassDecl;
 	private final constructor:Dynamic;
-    private var inheritance:Null<Dynamic> = null;
+    private var classReference:Null<Dynamic> = null;
 
     public function new(clsDecl:ClassDecl, module:ScriptRuntime) {
         this.module = module;
         this.name = clsDecl.name;
+        this.isFinal = clsDecl.isFinal;
         this.classInterp = new ClassInterp(this.name);
         this.clsDecl = clsDecl;
         this.constructor = Reflect.makeVarArgs(function(args) return this.create(args));
@@ -43,12 +55,12 @@ class ClassHandler implements IHScriptCustomBehaviour {
             var cls:ClassHandler = module.variables.get(extend);
             if(cls.isFinal)
                 throw 'Cannot extend a final class';
-            inheritance = cls;
+            classReference = cls;
         }
         else
-            inheritance = Type.resolveClass('${extend}$CLASS_POSFIX');
+            classReference = Type.resolveClass('${extend}$CLASS_POSFIX'); // BIG TODO
 
-        if(inheritance == null)
+        if(classReference == null)
             throw 'Invalid class: ${extend} was not found.';
     }
 

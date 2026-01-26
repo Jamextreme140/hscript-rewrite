@@ -272,12 +272,14 @@ class ClassDecl {
     public var extend:Null<String>;
     public var implement:Array<String>;
     public var body:Expr; // Will be always EInfo along with a EBlock
+    public var isFinal:Bool;
 
-    public function new(name:String, ?extend:String, implement:Array<String>, body:Expr) {
+    public function new(name:String, ?extend:String, implement:Array<String>, body:Expr, isFinal:Bool) {
         this.name = name;
         this.extend = extend;
         this.implement = implement;
         this.body = body;
+        this.isFinal = isFinal;
     }
 }
 
@@ -287,4 +289,9 @@ typedef VariableInfo = Array<String>;
 interface IHScriptCustomBehaviour {
 	public function hset(name:String, value:Dynamic):Dynamic;
 	public function hget(name:String):Dynamic;
+}
+
+//@:build(insert macro here...)
+interface IHScriptClass extends IHScriptCustomBehaviour {
+    public var instance:hscript.misc.classes.Instance;
 }

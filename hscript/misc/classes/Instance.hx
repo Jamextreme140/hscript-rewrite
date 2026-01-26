@@ -22,13 +22,13 @@ class Instance implements IHScriptCustomBehaviour {
         this.classHandler = classHandler;
         build();
 
-        var hasSuperClass = classHandler.inheritance != null;
+        var hasSuperClass = classHandler.classReference != null;
         if(instanceInterp.variables.exists('new')) {
             constructor = hasSuperClass ? createConstructor() : null;
             StaticInterp.callObjectField(null, instanceInterp.variables.get('new'), args);
 
             if(hasSuperClass && this.superClass == null)
-                throw 'super() not called';
+                throw 'missing super constructor call';
         }
         else if(hasSuperClass) {
             createSuperClass(args);
@@ -48,14 +48,21 @@ class Instance implements IHScriptCustomBehaviour {
     }
 
     private function createSuperClass(args:Array<Dynamic>) {
-        if(classHandler.inheritance is ClassHandler) {
-            var instance:Instance = ClassHandler.createInstance(classHandler.inheritance, args);
-            superClass = instance;
-            // TODO: fetch superclass fields to concatenate with "scriptParentFields"
+        if(classHandler.classReference is ClassHandler) {
+            var superInstance:Instance = ClassHandler.createInstance(classHandler.classReference, args);
+            superClass = superInstance;
+            for(f => name in superInstance.instanceInterp.variablesLookup) {
+                @:privateAccess
+                if(superInstance.instanceInterp.instanceVariablesDeclared[name]) 
+                    this.instanceInterp.scriptParentFields.set(f, true);
+            }
         }
         else {
-            superClass = Type.createInstance(classHandler.inheritance, args);
-            // TODO: fetch superclass fields to concatenate with "scriptParentFields"
+            // create macro-generated super class instance
+            superClass = Type.createInstance(classHandler.classReference, args);
+            for(f in Type.getInstanceFields(classHandler.classReference))
+                this.instanceInterp.scriptParentFields.set(f, true);
+            superClass.instance = this;
         }
     }
 
