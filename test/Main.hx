@@ -20,7 +20,7 @@ class Main {
 				public static var N:Int = 100;
 				public static function getSum(a:Int, b:Int) {
 					trace('static getSum');
-					return a + b + N;
+					return a + b + MyClass.N;
 				}
 
 				public var a:Int = 50;

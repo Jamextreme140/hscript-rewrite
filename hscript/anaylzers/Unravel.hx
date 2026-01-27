@@ -102,7 +102,7 @@ using hscript.utils.ExprUtils;
             case EDoWhile(cond, body): EDoWhile(eval(cond), eval(body));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) eval(arg)], eval(expr));
             case EInfo(info, expr): EInfo(info, eval(expr, cl));
-            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, eval(decl.body, true)));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, eval(decl.body, true), decl.isFinal));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
             case EUnop(op, isPrefix, expr): EUnop(op, isPrefix, eval(expr));
             case EIf(cond, thenExpr, elseExpr): EIf(eval(cond), eval(thenExpr), elseExpr != null ? eval(elseExpr) : null);

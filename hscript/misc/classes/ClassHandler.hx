@@ -67,6 +67,7 @@ class ClassHandler implements IHScriptCustomBehaviour {
     private inline function build() {
         classInterp.errorHandler = module.errorHandler;
         classInterp.publicVariables = module.publicVariables;
+        classInterp.variables.set(name, this);
         classInterp.execute(clsDecl.body);
     }
 
@@ -81,6 +82,9 @@ class ClassHandler implements IHScriptCustomBehaviour {
     public function hget(field:String):Dynamic {
         if(field == 'new') 
             return constructor;
+
+        if(field == name) // MyClass.MyClass.something() isn't valid
+            return module.error(EUnknownVariable(field));
         
         return classInterp.variables.get(field);
     }

@@ -36,7 +36,7 @@ class InstanceInterp extends Interp {
             case EIdent(name):
                 if (variablesDeclared[name]) variablesValues[name].r; 
                 else if(instanceVariablesDeclared[name]) instanceVariablesValues[name].r;
-                else resolveGlobal(name);
+                else resolveIdent(name);
             case EVar(name, init, _, isStatic):
                 if(depth == 0 && isStatic) // Class variable, ignore it.
                     return null;
@@ -115,7 +115,7 @@ class InstanceInterp extends Interp {
         return assign(name, value);
     }
 
-    private override function resolveGlobal(ident:Ast.VariableType):Dynamic {
+    private function resolveIdent(ident:Ast.VariableType):Dynamic {
         var varName:String = variableNames[ident];
         if(varName == 'this')
             return scriptParent;

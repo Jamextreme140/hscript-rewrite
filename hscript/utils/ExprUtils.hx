@@ -116,7 +116,7 @@ import hscript.Ast.Expr;
             case EDoWhile(cond, body): EDoWhile(map(cond, iter), map(body, iter));
             case EMeta(name, args, expr): EMeta(name, [for (arg in args) map(arg, iter)], map(expr, iter));
             case EInfo(info, expr): EInfo(info, map(expr, iter));
-            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, map(decl.body, iter)));
+            case EClass(name, decl): EClass(name, new ClassDecl(decl.name, decl.extend, decl.implement, map(decl.body, iter), decl.isFinal));
             case EBreak | EConst(_) | EContinue | EIdent(_) | EImport(_) | EEmpty: expr.expr; 
         }, expr.line) else null;
 
