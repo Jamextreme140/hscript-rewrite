@@ -41,7 +41,7 @@ class ClassHandler implements IHScriptCustomBehaviour {
         this.module = module;
         this.name = clsDecl.name;
         this.isFinal = clsDecl.isFinal;
-        this.classInterp = new ClassInterp(this.name);
+        this.classInterp = new ClassInterp(this.name, this);
         this.clsDecl = clsDecl;
         this.constructor = Reflect.makeVarArgs(function(args) return this.create(args));
         if(clsDecl.extend != null)
@@ -77,6 +77,14 @@ class ClassHandler implements IHScriptCustomBehaviour {
 
     public function hasField(name:String) {
         return classInterp.variables.exists(name);
+    }
+
+    public function hasInModule(name:String):Bool {
+        return module.variables.exists(name);
+    }
+
+    public function getFromModule(name:String):Dynamic {
+        return module.variables.get(name);
     }
 
     public function hget(field:String):Dynamic {

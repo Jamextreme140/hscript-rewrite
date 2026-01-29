@@ -121,6 +121,17 @@ class InstanceInterp extends Interp {
             return scriptParent;
         if(classHandler.hasField(varName))
             return classHandler.classInterp.variables.get(varName);
+        return resolveGlobal(ident);
+    }
+
+    // First resolves variables from the module
+    override function resolveGlobal(ident:VariableType):Dynamic {
+        var varName:String = variableNames[ident];
+        // current issue: due to how the variable setting works,
+        // unless the imported class is referenced, it cannot be obtained 
+        // directly since isn't actually set.
+        if(classHandler.hasInModule(varName))
+            return classHandler.getFromModule(varName);
         return super.resolveGlobal(ident);
     }
 }

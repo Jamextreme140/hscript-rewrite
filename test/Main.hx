@@ -16,40 +16,32 @@ class Main {
     public static function main() {
         var parser = new Parser();
         var expr = parser.parseString("
-			class MyClass {
-				public static var N:Int = 100;
-				public static function getSum(a:Int, b:Int) {
-					trace('static getSum');
-					return a + b + MyClass.N;
+			import haxe.ds.StringMap;
+
+			var outsideMap = new StringMap<Int>();
+
+			class MyMap {
+				var map:StringMap<Int>;
+				public function new() {
+					map = new StringMap();
 				}
 
-				public var a:Int = 50;
-				public var b:Int = 17;
-				public function new(a:Int, b:Int) {
-					trace('hello! :3');
-					trace('---- locals check ----');
-					trace('this.a: ${this.a}');
-					trace('a: $a');
-					trace('this.b: ${this.b}');
-					trace('b: $b');
-					this.a = a;
-					this.b = b;
+				public function get(s:String) {
+					return map.get(s);
 				}
 
-				public function sum() {
-					var r = MyClass.getSum(a, b) * N;
-					if(r == 67) return -1;
-					return r;
+				public function set(s:String, v:Int) {
+					map.set(s, v);
+					return v;
 				}
 			}
 
-			trace(MyClass.getSum(9, 10) + 2);
-			var myInstance = new MyClass(6, 7);
-			var v = myInstance.sum();
-			trace(v == -1 ? 'nope :>' : v);
+			var mm = new MyMap();
+			trace(mm.set(':3', 9));
+			trace(mm.get(':3'));
 		");
 
-		expr = Analyzer.optimize(expr);
+		//expr = Analyzer.optimize(expr);
 		trace("------ HSCRIPT AST ------");
 		trace(hscript.utils.ExprUtils.print(expr));
 		trace("--------- OUTPUT --------");

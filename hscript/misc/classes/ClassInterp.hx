@@ -1,8 +1,13 @@
 package hscript.misc.classes;
 
+import hscript.Ast.VariableType;
+
 class ClassInterp extends Interp {
 
-    public function new(name:String) {
+    private var handler:ClassHandler;
+
+    public function new(name:String, handler:ClassHandler) {
+        this.handler = handler;
         super(name);
     }
 
@@ -25,5 +30,12 @@ class ClassInterp extends Interp {
                 interpFunction(args, body, name, false, false);
             default: super.interpExpr(expr);
         }
+    }
+
+    override function resolveGlobal(ident:VariableType):Dynamic {
+        var varName:String = variableNames[ident];
+        if(handler.hasInModule(varName))
+            return handler.getFromModule(varName);
+        return super.resolveGlobal(ident);
     }
 }
