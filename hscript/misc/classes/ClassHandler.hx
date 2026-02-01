@@ -87,6 +87,14 @@ class ClassHandler implements IHScriptCustomBehaviour {
         return module.variables.get(name);
     }
 
+    public function hasImport(name:String):Bool {
+        return module.importLookup.exists(name);
+    }
+
+    public function resolveImport(name:String):ImportInfo {
+        return module.importLookup.get(name);
+    }
+
     public function hget(field:String):Dynamic {
         if(field == 'new') 
             return constructor;

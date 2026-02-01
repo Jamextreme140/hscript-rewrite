@@ -18,7 +18,7 @@ class Main {
         var expr = parser.parseString("
 			import haxe.ds.StringMap;
 
-			var outsideMap = new StringMap<Int>();
+			//var outsideMap = new StringMap<Int>();
 
 			class MyMap {
 				var map:StringMap<Int>;

@@ -129,9 +129,13 @@ class InstanceInterp extends Interp {
         var varName:String = variableNames[ident];
         // current issue: due to how the variable setting works,
         // unless the imported class is referenced, it cannot be obtained 
-        // directly since isn't actually set.
+        // directly since isn't actually set so it needs to be reimported.
         if(classHandler.hasInModule(varName))
             return classHandler.getFromModule(varName);
+        if(classHandler.hasImport(varName)) {
+            var i:Ast.ImportInfo = classHandler.resolveImport(varName);
+            return interpImport(i.path, i.mode);
+        }
         return super.resolveGlobal(ident);
     }
 }

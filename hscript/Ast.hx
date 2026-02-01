@@ -267,6 +267,16 @@ enum EImportMode {
     All; // import haxe.*;
 }
 
+class ImportInfo {
+    public var path:String;
+    public var mode:EImportMode;
+
+    public function new(path:String, mode:EImportMode) {
+        this.path = path;
+        this.mode = mode;
+    }
+}
+
 class ClassDecl {
     public var name:String;
     public var extend:Null<String>;
