@@ -83,7 +83,6 @@ class ScriptRuntime {
     public var variables:InterpLocals;
     public var publicVariables:StringMap<Dynamic>;
     public var errorHandler:Error->Void;
-    public var customClassLookup:ImportInfo->Bool;
 
     public var hasScriptParent:Bool = false;
     public var scriptParent(default, set):Dynamic;
@@ -464,8 +463,7 @@ class Interp extends ScriptRuntime {
                 throw ISReturn;
             case EImport(path, mode): 
                 var importValue:Dynamic = interpImport(path, mode);
-                // if is a boolean, there was an attempt to import a custom class
-                if (importValue == null || (importValue is Bool && !importValue)) error(EInvalidClass(path), expr.line);
+                if (importValue == null) error(EInvalidClass(path), expr.line);
                 return importValue;
             case EClass(name, decl): 
                 interpClass(name, decl);
@@ -549,8 +547,6 @@ class Interp extends ScriptRuntime {
 
             return value;
         }
-        else if(customClassLookup != null) // it's maybe a custom class
-            return customClassLookup(new ImportInfo(splitPathName.join("."), mode));
 
         return null;
     } 
