@@ -525,7 +525,7 @@ class Interp extends ScriptRuntime {
             if (variablesDeclared[variableID]) return variablesValues[variableID].r;
         }
 
-        var testClass:Either<Class<Dynamic>, Enum<Dynamic>> = StaticInterp.resolvePath(path);
+        var testClass:EitherOfThree<Class<Dynamic>, Dynamic, Enum<Dynamic>> = StaticInterp.resolvePath(path);
         if (testClass == null) {
             var splitPathCopy:Array<String> = splitPathName.copy();
             splitPathCopy.splice(-2, 1); 
@@ -537,6 +537,7 @@ class Interp extends ScriptRuntime {
         if (testClass != null) {
             var value:Dynamic = switch (testClass) {
                 case Left(resolvedClass): resolvedClass;
+                case Middle(resolvedValue): resolvedValue;
                 case Right(rawEnum): StaticInterp.resolveEnum(rawEnum);
             }
 
@@ -873,8 +874,16 @@ class Interp extends ScriptRuntime {
     }
 }
 
+private enum EitherOfThree<L, M, R> {
+    Left(v:L);
+    Middle(v:M);
+    Right(v:R);
+}
+
 class StaticInterp {
-	public static var staticVariables:StringMap<Dynamic> = new StringMap<Dynamic>();
+    public static var staticVariables:StringMap<Dynamic> = new StringMap<Dynamic>();
+
+    public static var pathResolver:String -> Dynamic = null;
     
     public static inline function evaluateBinop(op:ExprBinop, val1:Dynamic, val2:Dynamic):Dynamic {
         switch (op) {
@@ -931,7 +940,7 @@ class StaticInterp {
         }
     }
 
-    // https://github.com/HaxeFoundation/hscript/blob/master/hscript/Interp.hx#L646-L652
+    // https://github.com/HaxeFoundation/hscript/blob/master/hscript/Interp.hx#L677-L683
 	public static inline function getMapValue(map:Dynamic, key:Dynamic):Dynamic {
 		return cast(map, IMap<Dynamic, Dynamic>).get(key);
 	}
@@ -940,12 +949,17 @@ class StaticInterp {
 		cast(map, IMap<Dynamic, Dynamic>).set(key, value);
 	}
 
-    public static function resolvePath(path:String):Either<Class<Dynamic>, Enum<Dynamic>> {
+    public static function resolvePath(path:String):EitherOfThree<Class<Dynamic>, Dynamic, Enum<Dynamic>> {
         var resolvedClass:Class<Dynamic> = Type.resolveClass(path);
         if (resolvedClass != null) return Left(resolvedClass);
 
         var resolvedEnum:Enum<Dynamic> = Type.resolveEnum(path);
         if (resolvedEnum != null) return Right(resolvedEnum);
+
+        if(pathResolver != null) {
+            var resolvedValue:Dynamic = pathResolver(path);
+            if(resolvedValue != null) return Middle(resolvedValue);
+        }
 
         return null;
     }
