@@ -995,12 +995,12 @@ class Parser {
         ensure(LTOpenCB);
 
         var oldFileName:String = this.fileName;
-        var oldVariablesList:Array<String> = this.variablesList.copy();
-        var oldUniqueID:Int = uniqueID;
+        //var oldVariablesList:Array<String> = this.variablesList.copy();
+        //var oldUniqueID:Int = uniqueID;
         
         this.fileName = oldFileName.length == 0 ? className : '${haxe.io.Path.withoutExtension(oldFileName)}.$className'; // myScript.MyClass
-        this.variablesList.resize(0);
-        this.uniqueID = 0;
+        //this.variablesList.resize(0);
+        //this.uniqueID = 0;
 
         var fieldsExpr:Array<Expr> = [];
         parseClassFields(fieldsExpr);
@@ -1008,8 +1008,8 @@ class Parser {
         var clsDecl:ClassDecl = new ClassDecl(className, extend, implement, create(EInfo(variablesList, create(EBlock(fieldsExpr)))), finalModifier);
         
         this.fileName = oldFileName;
-        this.variablesList = oldVariablesList;
-        this.uniqueID = oldUniqueID;
+        //this.variablesList = oldVariablesList;
+        //this.uniqueID = oldUniqueID;
         
         return EClass(variableID(className), clsDecl);
     }

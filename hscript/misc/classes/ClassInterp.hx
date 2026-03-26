@@ -36,10 +36,6 @@ class ClassInterp extends Interp {
         var varName:String = variableNames[ident];
         if(handler.hasInModule(varName))
             return handler.getFromModule(varName);
-        if(handler.hasImport(varName)) {
-            var i:Ast.ImportInfo = handler.resolveImport(varName);
-            return interpImport(i.path, i.mode);
-        }
         return super.resolveGlobal(ident);
     }
 }

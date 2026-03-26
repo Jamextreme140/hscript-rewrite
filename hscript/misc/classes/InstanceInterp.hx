@@ -6,6 +6,11 @@ import haxe.ds.Vector;
 
 class InstanceInterp extends Interp {
 
+    /**
+     * Shares the same array as `variablesDeclared` and `variablesValues`
+     * but current variables (at any scope) are isolated from the instance variables
+     * allowing to do things like `this.a = a;`
+     */
     private var instanceVariablesDeclared:Vector<Bool>;
     private var instanceVariablesValues:Vector<IVariableReference>;
 
@@ -23,6 +28,7 @@ class InstanceInterp extends Interp {
     }
 
     public override function loadBaseVariables() {
+        // Allow access to class (static) variables 
         variables.set(classHandler.name, classHandler); 
         super.loadBaseVariables();
     }
@@ -51,7 +57,7 @@ class InstanceInterp extends Interp {
             default: super.interpExpr(expr);
         }
     }
-    // can't override since is inlined :'3
+    // same function from `declare` since is inlined 
     private inline function __declare(name:VariableType, value:Dynamic):Dynamic {
         var v:IVariableReference = {r: value};
         if (depth != 0) changes.push({
@@ -121,21 +127,8 @@ class InstanceInterp extends Interp {
             return scriptParent;
         if(classHandler.hasField(varName))
             return classHandler.classInterp.variables.get(varName);
-        return resolveGlobal(ident);
-    }
-
-    // First resolves variables from the module
-    override function resolveGlobal(ident:VariableType):Dynamic {
-        var varName:String = variableNames[ident];
-        // current issue: due to how the variable setting works,
-        // unless the imported class is referenced, it cannot be obtained 
-        // directly since isn't actually set so it needs to be reimported.
         if(classHandler.hasInModule(varName))
             return classHandler.getFromModule(varName);
-        if(classHandler.hasImport(varName)) {
-            var i:Ast.ImportInfo = classHandler.resolveImport(varName);
-            return interpImport(i.path, i.mode);
-        }
-        return super.resolveGlobal(ident);
+        return resolveGlobal(ident);
     }
 }

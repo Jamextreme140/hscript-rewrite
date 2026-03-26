@@ -267,16 +267,6 @@ enum EImportMode {
     All; // import haxe.*;
 }
 
-class ImportInfo {
-    public var path:String;
-    public var mode:EImportMode;
-
-    public function new(path:String, mode:EImportMode) {
-        this.path = path;
-        this.mode = mode;
-    }
-}
-
 class ClassDecl {
     public var name:String;
     public var extend:Null<String>;
@@ -301,7 +291,7 @@ interface IHScriptCustomBehaviour {
 	public function hget(name:String):Dynamic;
 }
 
-//@:build(insert macro here...)
+//@:autoBuild(hscript.misc.classes.macro.HScriptClassMacro)
 interface IHScriptClass extends IHScriptCustomBehaviour {
     public var instance:hscript.misc.classes.Instance;
 }

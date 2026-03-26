@@ -34,14 +34,14 @@ class Module {
 						public static var NUM:Int = 10;
 						var map:StringMap<Int>;
 						public function new(a:Int, b:Int) {
-							map = new StringMap();
+							map = new StringMap<Int>();
 							trace('Hello again :3');
 							trace(map.get(':3') == null);
 							trace(HelperClass.sum(a, b));
 						}
 
 						public function iGotThis() {
-							return 'FAHHHH!!';
+							return '    FAHHHH!!   ';
 						}
 					}
 				";
@@ -97,20 +97,21 @@ class Main {
 
         var code = "
 			import pack.MyOtherClass;
+			import StringTools;
 
 			class MyClass {
 				var moc:MyOtherClass;
 
-				function new() {
+				public function new() {
 					trace(MyOtherClass.NUM);
 					MyOtherClass.NUM += 20;
 					moc = new MyOtherClass(50, 50);
-					trace(moc.iGotThis());
+					trace(StringTools.trim(moc.iGotThis()));
 					trace(MyOtherClass.NUM);
 				}
 			}
 
-			var mc = new MyClass(50, 50);
+			var myClass = new MyClass();
         ";
         var module1 = new Module(code, "Main.hx");
         module1.load();	

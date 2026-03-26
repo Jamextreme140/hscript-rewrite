@@ -1,6 +1,5 @@
 package hscript;
 
-import hscript.Ast.ImportInfo;
 import hscript.misc.classes.ClassHandler;
 import hscript.Ast.ClassDecl;
 import haxe.ds.ObjectMap;
@@ -68,9 +67,6 @@ class ScriptRuntime {
     private var variableNames:Vector<String>;
     private var variablesLookup:StringMap<Int>;
 
-    @:allow(hscript.misc.classes.ClassHandler)
-    private var importLookup:StringMap<ImportInfo>;
-
     private var changes:Array<IDeclaredVariable> = [];
 
     private var depth:Int = 0;
@@ -129,8 +125,6 @@ class ScriptRuntime {
         this.variableNames = null;
         this.variablesLookup = null;
 
-        this.importLookup = null;
-
         this.changes = [];
 
         this.variables.useDefaults = true;
@@ -149,8 +143,6 @@ class ScriptRuntime {
         variableNames = Vector.fromArrayCopy(info);
         variablesLookup = new StringMap<Int>();
         for (i => name in info) variablesLookup.set(name, i);
-
-        importLookup = new StringMap<ImportInfo>();
     }
 
     private function loadBaseVariables() {
@@ -543,8 +535,6 @@ class Interp extends ScriptRuntime {
 
             if (variablesLookup.exists(variableName)) 
                 declare(variablesLookup.get(variableName), value);
-            else if(!importLookup.exists(variableName)) // cache the import 
-                importLookup.set(variableName, new ImportInfo(splitPathName.join("."), mode));
 
             return value;
         }
