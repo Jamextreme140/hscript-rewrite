@@ -106,7 +106,9 @@ class Main {
 					trace(MyOtherClass.NUM);
 					MyOtherClass.NUM += 20;
 					moc = new MyOtherClass(50, 50);
-					trace(StringTools.trim(moc.iGotThis()));
+					var fah = moc.iGotThis();
+					trace(fah);
+					trace(StringTools.trim(fah));
 					trace(MyOtherClass.NUM);
 				}
 			}

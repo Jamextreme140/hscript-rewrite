@@ -7,7 +7,7 @@ import haxe.ds.Vector;
 class InstanceInterp extends Interp {
 
     /**
-     * Shares the same array as `variablesDeclared` and `variablesValues`
+     * Shares the same array length as `variablesDeclared` and `variablesValues`
      * but current variables (at any scope) are isolated from the instance variables
      * allowing to do things like `this.a = a;`
      */
@@ -42,7 +42,7 @@ class InstanceInterp extends Interp {
             case EIdent(name):
                 if (variablesDeclared[name]) variablesValues[name].r; 
                 else if(instanceVariablesDeclared[name]) instanceVariablesValues[name].r;
-                else resolveIdent(name);
+                else resolveGlobal(name);
             case EVar(name, init, _, isStatic):
                 if(depth == 0 && isStatic) // Class variable, ignore it.
                     return null;
@@ -60,37 +60,41 @@ class InstanceInterp extends Interp {
     // same function from `declare` since is inlined 
     private inline function __declare(name:VariableType, value:Dynamic):Dynamic {
         var v:IVariableReference = {r: value};
-        if (depth != 0) changes.push({
-            name: name,
-            oldDeclared: variablesDeclared[name],
-            oldValue: variablesValues[name]
-        });
+        if (depth != 0) {
+            changes.push({
+                name: name,
+                oldDeclared: variablesDeclared[name],
+                oldValue: variablesValues[name]
+            });
+
+            variablesDeclared[name] = true;
+            variablesValues[name] = v;
+        } 
         else {
             // instance field declaration
             instanceVariablesDeclared[name] = true;
             instanceVariablesValues[name] = v;
         }
 
-        variablesDeclared[name] = true;
-        variablesValues[name] = v;
-
         return value;
     }
 
     private inline function __declareFunction(name:VariableType, ref:IVariableReference) {
-        if (depth != 0) changes.push({
-            name: name,
-            oldDeclared: variablesDeclared[name],
-            oldValue: variablesValues[name]
-        });
+        if (depth != 0){
+            changes.push({
+                name: name,
+                oldDeclared: variablesDeclared[name],
+                oldValue: variablesValues[name]
+            });
+
+            variablesDeclared[name] = true;
+            variablesValues[name] = ref;
+        } 
         else {
             // instance field declaration
             instanceVariablesDeclared[name] = true;
             instanceVariablesValues[name] = ref;
         }
-
-        variablesDeclared[name] = true;
-        variablesValues[name] = ref;
 
         return ref.r;
     }
@@ -121,7 +125,7 @@ class InstanceInterp extends Interp {
         return assign(name, value);
     }
 
-    private function resolveIdent(ident:Ast.VariableType):Dynamic {
+    override function resolveGlobal(ident:VariableType):Dynamic {
         var varName:String = variableNames[ident];
         if(varName == 'this')
             return scriptParent;
@@ -129,6 +133,6 @@ class InstanceInterp extends Interp {
             return classHandler.classInterp.variables.get(varName);
         if(classHandler.hasInModule(varName))
             return classHandler.getFromModule(varName);
-        return resolveGlobal(ident);
+        return super.resolveGlobal(ident);
     }
 }
