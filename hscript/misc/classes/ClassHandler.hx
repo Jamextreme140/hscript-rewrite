@@ -32,10 +32,11 @@ class ClassHandler implements IHScriptCustomBehaviour {
     public final isFinal:Bool;
     public final classInterp:Interp;
     
-    private var module:ScriptRuntime;
     private final clsDecl:ClassDecl;
 	private final constructor:Dynamic;
+    private var module:ScriptRuntime;
     private var classReference:Null<Dynamic> = null;
+    private var hasClassReference(default, null):Bool = false;
 
     public function new(clsDecl:ClassDecl, module:ScriptRuntime) {
         this.module = module;
@@ -62,6 +63,8 @@ class ClassHandler implements IHScriptCustomBehaviour {
 
         if(classReference == null)
             throw 'Invalid class: ${extend} was not found.';
+
+        hasClassReference = true;
     }
 
     private inline function build() {

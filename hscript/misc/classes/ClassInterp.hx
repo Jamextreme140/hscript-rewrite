@@ -33,7 +33,7 @@ class ClassInterp extends Interp {
     }
 
     override function resolveGlobal(ident:VariableType):Dynamic {
-        var varName:String = variableNames[ident];
+        final varName:String = variableNames[ident];
         if(handler.hasInModule(varName))
             return handler.getFromModule(varName);
         return super.resolveGlobal(ident);

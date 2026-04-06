@@ -22,7 +22,7 @@ class Instance implements IHScriptCustomBehaviour {
         this.classHandler = classHandler;
         build();
 
-        var hasSuperClass = classHandler.classReference != null;
+        final hasSuperClass:Bool = classHandler.hasClassReference;
         if(instanceInterp.variables.exists('new')) {
             constructor = hasSuperClass ? createConstructor() : null;
             StaticInterp.callObjectField(null, instanceInterp.variables.get('new'), args);

@@ -216,13 +216,13 @@ class ScriptRuntime {
 
     private inline function declarePublic(name:VariableType, value:Dynamic):Bool {
         if(publicVariables == null) return false;
-        var varName:String = variableNames[name];
+        final varName:String = variableNames[name];
         publicVariables.set(varName, value);
         return true;
     }
 
     private inline function declareStatic(name:VariableType, value:Dynamic):Bool {
-        var varName:String = variableNames[name];
+        final varName:String = variableNames[name];
         if(StaticInterp.staticVariables.exists(varName)) return false;
         StaticInterp.staticVariables.set(varName, value);
         return true;
@@ -873,6 +873,11 @@ private enum EitherOfThree<L, M, R> {
 class StaticInterp {
     public static var staticVariables:StringMap<Dynamic> = new StringMap<Dynamic>();
 
+    /**
+     * Helper callback to return values that couldn't be resolved on import.
+     * @param String The attempted import classpath
+     * @return The defined value (or null of not found).
+     */
     public static var pathResolver:String -> Dynamic = null;
     
     public static inline function evaluateBinop(op:ExprBinop, val1:Dynamic, val2:Dynamic):Dynamic {
@@ -1099,7 +1104,7 @@ class InterpLocalsImpl {
             return defaultsValues.get(key);
         } else {
 		    if (parent.variablesLookup != null && parent.variablesLookup.exists(key)) {
-                var varID:Int = parent.variablesLookup.get(key);
+                final varID:Int = parent.variablesLookup.get(key);
                 return parent.variablesDeclared[varID] ? parent.variablesValues[varID].r : null; 
             } else 
                 return null;
