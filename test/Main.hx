@@ -100,7 +100,7 @@ class Main {
 			import StringTools;
 
 			class MyClass {
-				var moc:MyOtherClass;
+				private var moc:MyOtherClass;
 
 				public function new() {
 					trace(MyOtherClass.NUM);
@@ -113,7 +113,7 @@ class Main {
 				}
 			}
 
-			var myClass = new MyClass();
+			private var myClass = new MyClass();
         ";
         var module1 = new Module(code, "Main.hx");
         module1.load();	

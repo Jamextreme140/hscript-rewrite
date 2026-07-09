@@ -534,6 +534,17 @@ class Parser {
                 }
                 publicModifier = false;
                 modifierExpr;
+            case PRIVATE:
+                var modifierExpr:Expr = switch (readToken()) {
+                    case LTKeyWord(STATIC): parseKeyword(STATIC);
+                    case LTKeyWord(FUNCTION): parseKeyword(FUNCTION);
+                    case LTKeyWord(OVERRIDE): parseKeyword(OVERRIDE);
+                    case LTKeyWord(VAR): parseKeyword(VAR);
+                    case LTKeyWord(FINAL): parseKeyword(FINAL);
+                    case LTKeyWord(HCLASS): parseKeyword(HCLASS); // private class
+                    default: unexpected();
+                }
+                modifierExpr;
             case OVERRIDE:
                 switch (readToken()) {
                     case LTKeyWord(PUBLIC): parseKeyword(STATIC);
@@ -1017,7 +1028,7 @@ class Parser {
     private function parseClassFields(fields:Array<Expr>) {
         while(true) {
             switch(readToken()) {
-                case LTKeyWord(PUBLIC) | LTKeyWord(STATIC) | LTKeyWord(HINLINE) | LTKeyWord(OVERRIDE) | LTKeyWord(FUNCTION) | LTKeyWord(VAR) | LTKeyWord(FINAL):
+                case LTKeyWord(PUBLIC) | LTKeyWord(PRIVATE) | LTKeyWord(STATIC) | LTKeyWord(HINLINE) | LTKeyWord(OVERRIDE) | LTKeyWord(FUNCTION) | LTKeyWord(VAR) | LTKeyWord(FINAL):
                     reverseToken();
                     fields.push(parseExpr());
                 case LTSemiColon: continue;
