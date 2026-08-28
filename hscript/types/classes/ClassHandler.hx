@@ -10,9 +10,6 @@ import hscript.Ast.IHScriptCustomBehaviour;
  */
  @:allow(hscript.types.classes.Instance)
 class ClassHandler implements IHScriptCustomBehaviour {
-
-    private static inline var CLASS_POSFIX:String = "_HSX"; // BIG TODO: generate special classes with macro
-
     /**
      * Creates an instance of custom class `cl`, using `args` as arguments to the 
      * class constructor.
@@ -34,7 +31,13 @@ class ClassHandler implements IHScriptCustomBehaviour {
     
     private final clsDecl:ClassDecl;
 	private final constructor:Dynamic;
+    /**
+     * Reference to current module (i.e. the current running script)
+     */
     private var module:ScriptRuntime;
+    /**
+     * Used for class instantiation. `null` if the class does not inherit anything.
+     */
     private var classReference:Null<Dynamic> = null;
     private var hasClassReference(default, null):Bool = false;
 
@@ -59,9 +62,9 @@ class ClassHandler implements IHScriptCustomBehaviour {
             classReference = cls;
         }
         else
-            classReference = Type.resolveClass('${extend}$CLASS_POSFIX'); // BIG TODO
+            classReference = Type.resolveClass(extend);
 
-        if(classReference == null)
+        if(classReference == null || !(classReference is IHScriptClass))
             throw 'Invalid class: ${extend} was not found.';
 
         hasClassReference = true;
