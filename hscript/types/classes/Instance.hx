@@ -1,4 +1,4 @@
-package hscript.misc.classes;
+package hscript.types.classes;
 
 import hscript.Interp.StaticInterp;
 import hscript.Interp.ScriptRuntime;

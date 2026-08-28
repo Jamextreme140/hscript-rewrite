@@ -1,4 +1,4 @@
-package hscript.misc.classes;
+package hscript.types.classes;
 
 import hscript.Ast;
 import hscript.Interp;

@@ -1,6 +1,6 @@
 package hscript;
 
-import hscript.misc.classes.ClassHandler;
+import hscript.types.classes.ClassHandler;
 import hscript.Ast.ClassDecl;
 import haxe.ds.ObjectMap;
 import haxe.ds.Map;

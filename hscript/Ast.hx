@@ -293,5 +293,5 @@ interface IHScriptCustomBehaviour {
 
 //@:autoBuild(hscript.misc.classes.macro.HScriptClassMacro)
 interface IHScriptClass extends IHScriptCustomBehaviour {
-    public var instance:hscript.misc.classes.Instance;
+    public var instance:hscript.types.classes.Instance;
 }

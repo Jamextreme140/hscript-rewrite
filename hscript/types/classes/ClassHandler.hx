@@ -1,4 +1,4 @@
-package hscript.misc.classes;
+package hscript.types.classes;
 
 import hscript.Ast;
 import hscript.Ast.ClassDecl;
@@ -8,7 +8,7 @@ import hscript.Ast.IHScriptCustomBehaviour;
 /**
  * Provides handlers for static class fields and instantiation.
  */
- @:allow(hscript.misc.classes.Instance)
+ @:allow(hscript.types.classes.Instance)
 class ClassHandler implements IHScriptCustomBehaviour {
 
     private static inline var CLASS_POSFIX:String = "_HSX"; // BIG TODO: generate special classes with macro
