@@ -976,19 +976,15 @@ class StaticInterp {
     }
 
     public static inline function getObjectField(object:Dynamic, field:String) {
-        if (object is IHScriptCustomBehaviour) {
-            var behavior:IHScriptCustomBehaviour = cast object;
-            return behavior.hget(field);
-        }
+        if (object is IHScriptCustomBehaviour) 
+            return (cast object:IHScriptCustomBehaviour).hget(field);
 
         return Reflect.getProperty(object, field);
     }
 
     public static inline function setObjectField(object:Dynamic, field:String, value:Dynamic) {
-        if (object is IHScriptCustomBehaviour) {
-            var behavior:IHScriptCustomBehaviour = cast object;
-            return behavior.hset(field, value);
-        }
+        if (object is IHScriptCustomBehaviour) 
+            return (cast object:IHScriptCustomBehaviour).hset(field, value);
 
         Reflect.setProperty(object, field, value);
         return value;

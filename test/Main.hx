@@ -111,9 +111,30 @@ class Main {
 					trace(StringTools.trim(fah));
 					trace(MyOtherClass.NUM);
 				}
-			}
 
+				public function son() {
+					return null;
+				}
+			}
+			
+			class Son extends MyClass {
+				public function new() {
+					super();
+
+					var faaaah = moc.iGotThis();
+					trace(faaah);
+
+					son();
+				}
+
+				public override function son() {
+					return 'son *sobbing*';
+				}
+			}
+			
 			private var myClass = new MyClass();
+			trace(\"Creating Son...\");
+			private var mySon = new Son();
         ";
         var module1 = new Module(code, "Main.hx");
         module1.load();	

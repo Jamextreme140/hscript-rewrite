@@ -10,6 +10,7 @@ import hscript.Ast.IHScriptCustomBehaviour;
  */
  @:allow(hscript.types.classes.Instance)
 class ClassHandler implements IHScriptCustomBehaviour {
+    private static inline var CLS_POSFIX:String = "_CUSTOM_CLASS";
     /**
      * Creates an instance of custom class `cl`, using `args` as arguments to the 
      * class constructor.
@@ -55,16 +56,18 @@ class ClassHandler implements IHScriptCustomBehaviour {
 
     private function createInheritance() {
         var extend:String = clsDecl.extend;
+        var isCustomClass:Bool = false;
+        // TODO: optimize this 
         if(module.variables.exists(extend)) {
-            var cls:ClassHandler = module.variables.get(extend);
-            if(cls.isFinal)
+            var cls:Dynamic = module.variables.get(extend);
+            if((isCustomClass = cls is ClassHandler) && (cast cls:ClassHandler).isFinal)
                 throw 'Cannot extend a final class';
-            classReference = cls;
+            classReference = isCustomClass ? cls : Type.resolveClass('${Type.getClassName(cast cls)}_$CLS_POSFIX');
         }
         else
-            classReference = Type.resolveClass(extend);
+            classReference = Type.resolveClass('${extend}_$CLS_POSFIX');
 
-        if(classReference == null || !(classReference is IHScriptClass))
+        if(classReference == null || !isCustomClass && !(classReference is IHScriptClass))
             throw 'Invalid class: ${extend} was not found.';
 
         hasClassReference = true;

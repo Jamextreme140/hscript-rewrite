@@ -16,6 +16,7 @@ class Instance implements IHScriptCustomBehaviour {
     private var module:ScriptRuntime;
     private var constructor:Dynamic = null;
     private var superClass:Dynamic = null;
+    private var topCls(default, null):Null<Instance>;
 
     public function new(args:Array<Dynamic>, classHandler:ClassHandler) {
         this.module = classHandler.module;
@@ -24,14 +25,19 @@ class Instance implements IHScriptCustomBehaviour {
 
         final hasSuperClass:Bool = classHandler.hasClassReference;
         if(instanceInterp.variables.exists('new')) {
-            constructor = hasSuperClass ? createConstructor() : null;
+            // TODO: show error when trying to call "super" in a single class
+            constructor = hasSuperClass ? Reflect.makeVarArgs(createSuperClass) : null;
+            instanceInterp.variables.set('super', constructor); // no check since it doesn't stay in memory if isn't referenced
             StaticInterp.callObjectField(null, instanceInterp.variables.get('new'), args);
 
             if(hasSuperClass && this.superClass == null)
                 throw 'missing super constructor call';
+
+            instanceInterp.variables.set('super', superClass);
         }
         else if(hasSuperClass) {
             createSuperClass(args);
+            instanceInterp.variables.set('super', superClass);
         }
     }
 
@@ -43,10 +49,6 @@ class Instance implements IHScriptCustomBehaviour {
         instanceInterp.execute(classHandler.clsDecl.body);
     }
 
-    private inline function createConstructor():Dynamic {
-        return Reflect.makeVarArgs(createSuperClass);
-    }
-
     private function createSuperClass(args:Array<Dynamic>) {
         if(classHandler.classReference is ClassHandler) {
             var superInstance:Instance = ClassHandler.createInstance(classHandler.classReference, args);
@@ -56,6 +58,7 @@ class Instance implements IHScriptCustomBehaviour {
                 if(superInstance.instanceInterp.instanceVariablesDeclared[name]) 
                     this.instanceInterp.scriptParentFields.set(f, true);
             }
+            superInstance.topCls = this;
         }
         else {
             // create macro-generated super class instance
@@ -66,15 +69,32 @@ class Instance implements IHScriptCustomBehaviour {
         }
     }
 
+    public function getTopClass():Instance {
+        if(topCls == null) return this;
+
+        var lastTopCls = this.topCls;
+        while(lastTopCls != null) {
+            if(lastTopCls.topCls == null)
+                break;
+
+            lastTopCls = lastTopCls.topCls;
+        }
+        return lastTopCls;
+    }
+
     public function hget(field:String):Dynamic {
         if(classHandler.hasField(field))
             throw 'The field $field should be accessed in a static way';
-        return instanceInterp.resolveField(field);
+        var v:Dynamic = instanceInterp.resolveField(field);
+        if(v == null && superClass != null)
+            v = (cast superClass:IHScriptCustomBehaviour).hget(field);
+        return v;//instanceInterp.resolveField(field);
     }
 
     public function hset(field:String, value:Dynamic):Dynamic {
         if(classHandler.hasField(field))
             throw 'The field $field should be accessed in a static way';
+        // TODO: 
         return instanceInterp.assignField(field, value);
     }
 }
