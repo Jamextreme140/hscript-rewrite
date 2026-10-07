@@ -291,7 +291,8 @@ interface IHScriptCustomBehaviour {
 	public function hget(name:String):Dynamic;
 }
 
-//@:autoBuild(hscript.misc.classes.macro.HScriptClassMacro)
+//@:autoBuild(hscript.types.classes.macro.HScriptClassMacro.build())
 interface IHScriptClass extends IHScriptCustomBehaviour {
-    public var instance:hscript.types.classes.Instance;
+    public var __instance:hscript.types.classes.Instance;
+    public var __skipCheckFrom:Array<String>;
 }
