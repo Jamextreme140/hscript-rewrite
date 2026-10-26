@@ -88,10 +88,12 @@ class ExprPrinter {
 			case EIdent(name):
 				add(variableNames[name]);
 			case EVar(name, init, isPublic, isStatic):
-				if (isPublic)
-					add("public ");
-				if (isStatic)
-					add("static ");
+				if (depth == 0) {
+					if (isPublic)
+						add("public ");
+					if (isStatic)
+						add("static ");
+				}
 				var varName = variableNames[name];
 				add('var $varName');
 				if (init != null) {
