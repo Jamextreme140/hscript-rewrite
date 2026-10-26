@@ -1027,9 +1027,9 @@ class StaticInterp {
 }
 
 /**
- * Interface to set locals inside a interp. See resolve() function to see what counts as local.
+ * Special Map structure to set locals inside an interpreter. See resolve() function to see what counts as local.
  */
-class InterpLocalsImpl {
+class InterpLocalsImpl implements haxe.Constraints.IMap<String, Dynamic>{
     /**
      * Defaults are used to load variables before the interps variable vectors have loaded
      * 
@@ -1051,11 +1051,11 @@ class InterpLocalsImpl {
 	public function new(parent:ScriptRuntime)
 		this.parent = parent;
 
-	public inline function set(key:String, value:Dynamic) {
+    public inline function set(key:String, value:Dynamic) {
         if (useDefaults) {
             defaultsValues.set(key, value);
         } else {
-		    if (parent.variablesLookup != null && parent.variablesLookup.exists(key)) 
+            if (parent.variablesLookup != null && parent.variablesLookup.exists(key)) 
                 parent.assign(parent.variablesLookup.get(key), value);
         }
 	}
@@ -1064,7 +1064,7 @@ class InterpLocalsImpl {
         if (useDefaults) {
             return defaultsValues.get(key);
         } else {
-		    if (parent.variablesLookup != null && parent.variablesLookup.exists(key)) {
+            if (parent.variablesLookup != null && parent.variablesLookup.exists(key)) {
                 var varID:Int = parent.variablesLookup.get(key);
                 return parent.variablesDeclared[varID] ? parent.variablesValues[varID].r : null; 
             } else 
@@ -1072,7 +1072,86 @@ class InterpLocalsImpl {
         }
 	}
 
-	public inline function exists(key:String):Bool {
-		return parent.variablesLookup != null && parent.variablesLookup.exists(key) && parent.variablesDeclared[parent.variablesLookup.get(key)];
-	}
+    public inline function exists(key:String):Bool {
+    	return parent.variablesLookup != null && parent.variablesLookup.exists(key) && parent.variablesDeclared[parent.variablesLookup.get(key)];
+    }
+
+    public function remove(key:String):Bool {
+        return false;
+    }
+    
+    public function keys():Iterator<String> {
+        if(useDefaults) return defaultsValues.keys();
+        return parent.variablesLookup != null ? parent.variablesLookup.keys() : null;
+    }
+    public function iterator():Iterator<Dynamic> {
+        if(useDefaults) return defaultsValues.iterator();
+        return new InterpLocalsIterator(this);
+    }
+    public function keyValueIterator():KeyValueIterator<String, Dynamic> {
+        if(useDefaults) return defaultsValues.keyValueIterator();
+        return new InterpLocalsKeyValueIterator(this);
+    }
+	public function copy():IMap<String, Dynamic> {
+        if(useDefaults) return defaultsValues.copy();
+        if(parent.variableNames == null) return new Map<String, Dynamic>();
+        return cast [
+            for (i in 0...parent.variablesDeclared.length) parent.variableNames[i] => parent.variablesDeclared[i] ? parent.variablesValues[i].r : null
+        ];
+    }
+	public function toString():String {
+        if(useDefaults) return defaultsValues.toString();
+        return copy().toString();
+    }
+	public function clear():Void {
+        if (useDefaults) defaultsValues.clear();
+        else
+            for (k in this.keys()) {
+                set(k, null);
+            }
+    }
+}
+
+class InterpLocalsIterator {
+    final variablesValues:Vector<IVariableReference>;
+    final variablesDeclared:Vector<Bool>;
+    var i:Int = 0;
+
+    public function new(locals:InterpLocalsImpl) {
+        this.variablesValues = locals.parent.variablesValues;
+        this.variablesDeclared = locals.parent.variablesDeclared;
+    }
+
+    #if !hl inline #end
+    public function hasNext():Bool {
+        return i < variablesValues.length;
+    }
+
+    #if !hl inline #end
+    public function next():Dynamic {
+        return variablesValues[i++].r;
+    }
+}
+
+class InterpLocalsKeyValueIterator {
+    final variablesValues:Vector<IVariableReference>;
+    final variablesDeclared:Vector<Bool>;
+    final variableNames:Vector<String>;
+    var i:Int = 0;
+
+    public function new(locals:InterpLocalsImpl) {
+        this.variablesValues = locals.parent.variablesValues;
+        this.variablesDeclared = locals.parent.variablesDeclared;
+        this.variableNames = locals.parent.variableNames;
+    }
+
+    #if !hl inline #end
+    public function hasNext():Bool {
+        return i < variablesValues.length;
+    }
+
+    #if !hl inline #end
+    public function next():{key:String, value:Dynamic} {
+        return {key: variableNames[i], value: variablesValues[i++].r};
+    }
 }
