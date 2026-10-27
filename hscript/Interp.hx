@@ -1029,7 +1029,7 @@ class StaticInterp {
 /**
  * Special Map structure to set locals inside an interpreter. See resolve() function to see what counts as local.
  */
-class InterpLocalsImpl implements haxe.Constraints.IMap<String, Dynamic>{
+class InterpLocalsImpl implements IMap<String, Dynamic> {
     /**
      * Defaults are used to load variables before the interps variable vectors have loaded
      * 

@@ -9,13 +9,13 @@ import hscript.Interp.StaticInterp;
 
 class BInstructionPointer {
     public var position:Int;
-    public var temps:Array<Int> = [];
+    public final temps:Array<Int> = [];
 
     public function new() {}
 }
 
 class ByteCompiler {
-    public var buffer:ByteChunk;
+    public final buffer:ByteChunk;
 
     public function new() {
         buffer = {};

@@ -2,10 +2,10 @@ package hscript.bytecode;
 
 @:structInit
 class ByteChunk {
-	public var instructions:Array<ByteInstruction> = [];
-	public var instruction_args:Array<Int> = [];
+	public final instructions:Array<ByteInstruction> = [];
+	public final instruction_args:Array<Int> = [];
 
-	public var constants:Array<Dynamic> = [];
+	public final constants:Array<Dynamic> = [];
 }
 
 enum abstract ByteInstruction(Int) from Int to Int {

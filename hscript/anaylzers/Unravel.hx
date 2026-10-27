@@ -23,8 +23,10 @@ using hscript.utils.ExprUtils;
                     var optimizedExpr:Expr = eval(expr);
                     optimizedExprs.push(optimizedExpr);
                     switch (optimizedExpr.expr) {
-                        case EReturn(null): optimizedExprs.pop(); break;
-                        case EReturn(expr): break;
+                        //case EReturn(null): optimizedExprs.pop(); break;
+                        case EReturn(expr): 
+                            if(expr == null) optimizedExprs.pop();
+                            break;
                         default:
                     }
                 }
@@ -36,8 +38,10 @@ using hscript.utils.ExprUtils;
                     expr.iterate((expr:Expr) -> {
                         switch (expr.expr) {
                             case EVar(_, _, isPublic, isStatic) | EFunction(_, _, _, isPublic, isStatic): 
-                                if ((isPublic == null ? true : !isPublic) && (isStatic == null ? true : !isStatic)) declaresVariables = true;
-                            case EImport(path, mode): declaresVariables = true;
+                                final p:Bool = isPublic ?? false;
+                                final s:Bool = isStatic ?? false;
+                                if (!p && !s) declaresVariables = true;
+                            case EImport(_, _): declaresVariables = true;
                             default: // does not declare any variables in the current scope, safe!
                         }
                     });
